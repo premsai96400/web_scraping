@@ -1,27 +1,19 @@
 from bs4 import BeautifulSoup as bs
-import requests
-import pickle
-
-r = requests.get('https://www.youtube.com/playlist?list=PL2_aWCzGMAwI3W_JlcBbtYTwiQSsOTa6P')
-page = r.text
-soup=bs(page,'html.parser')
-res=soup.find_all('a',{'class':'pl-video-title-link'})
-print(res)
-kiran = []
-w = []
-names=[]
-for l in res:
-     a = l.get('href')
-     kiran.append(a)
-for i in range(len(kiran)):
-    k = ('https://www.youtube.com'+kiran[i])
-    w.append(k)
-for i in range(len(w)):
-    k = requests.get(w[i])
-    sai = k.text
-    sp = bs(sai,'html.parser')
-    kl= sp.find("meta",property ="og:title" )
-    #print (kl.get("content", None))
-    names.append(kl.get("content", None))
-with open('mom.txt','wb') as f:
-    pickle.dump(names,f)
+from selenium import webdriver
+from twilio.rest import Client
+import time
+account_sid = "AC750e575cdbd1d6d1e73746d04f6be5e5" # enter the ssid of twilio account
+auth_token = "ad557c0881a8b1b4a393417e93b1d18d"  #enter the auth token of your twilio account
+path='C:\\Users\\Hi\\AppData\\Local\\Programs\\Python\\chromedriver' # enter the location of your chrome web driver
+driver=webdriver.Chrome(path)
+driver.get('https://www.covid19india.org/')
+time.sleep(100)
+page = driver.page_source
+driver.quit()
+soup = bs(page, 'html.parser')
+res=soup.find_all('div',{'class':'level-item is-confirmed'})
+sai=res[0].find_all('h1')
+a = sai[0].get_text()
+b = 'corona cases in india are '+ a
+client = Client(account_sid, auth_token)
+message = client.messages.create( from_='+12013501575',body =b,to ='+91 9676192575')
